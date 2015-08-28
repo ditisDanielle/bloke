@@ -1,4 +1,4 @@
-Hier volgen instructies om een nieuwe versie te deployen op de VPS
+Hier volgen instructies om een nieuwe versie te deployen op de VPS.  
 Delen tekst die tussen < > staan dienen vervangen te worden met de betreffende waarde. Zo staat < nr > voor team nummer.
 
 Maak een war aan met het volgende commando
