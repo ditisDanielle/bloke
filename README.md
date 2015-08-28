@@ -1,140 +1,88 @@
-${project.name} v${project.version} 
---------------
+Hier volgen instructies om een nieuwe versie te deployen op de VPS
+Delen tekst die tussen < > staan dienen vervangen te worden met de betreffende waarde. Zo staat < nr > voor team nummer.
 
-Here we can place deployment information, change logs etc.
+Maak een war aan met het volgende commando
 
-=============================================================
+    mvn clean install
 
-Stappen om de applicatie lokaal te testen met postgres
--- Installeer postgres lokaal
-!! let op: de user 'postgres' wordt aangemaakt en daarbij wordt een wachtwoord voor deze user gevraagd.
-!! Dit wachtwoord zul je nog vaak nodig hebben.
-!! Ik heb gekozen voor het wachtwoord 'p0stgr3s'
+Hierna zul je in de target folder van het project een .zip bestand zien staan. Dit bestand moet eerst naar de VPS gekopieerd worden. Gebruik hiervoor het volgende commando
 
--- Installeer indien gewenst pgAdmin3 lokaal voor een grafische user interface op je database
+	scp <filename.zip> <username>@hhs-bacchus-<nr>.42.nl:/home/<username>
 
--- Maak in een cmd terminal een unix en een postgres user 'bacchus' aan: de applicatie verwacht de user 'bacchus' met als wachtwoord 'B@cch45'
-# sudo -s
-# useradd -m -s /bin/bash bacchus  (mac: via Systeemvoorkeuren gebruiker 'bacchus' toevoegen)
-# sudo -u postgres createuser -P bacchus
+Log nu in op de server
 
--- Maak een postgres database voor de user bacchus aan: de applicatie verwacht de database 'bacchusdb'
-# sudo -u postgres createdb -O bacchus bacchusdb
+    ssh <user>@hhs-bacchus-<nr>.42.nl
+Voordat we deze nieuwe versie gaan deployen willen we de versie eerst in de oude_releases folder plaatsen. Dit doen we om een centrale plek te hebben met alle versies, zo kunnen we eventueel ook met minimale moeite een versie terug gaan indien iets niet goed blijkt te gaan. Let op dat op deze manier een versie teruggaan een stuk complexer wordt wanneer er databasewijzigingen zijn gemaakt. Eerst gaan we op de server naar de oude_releases map, daarna maken we een nieuwe folder aan voor deze versie van de applicatie en via het laatste commando verplaatsen we de zip file naar de gemaakte folder. 
 
--- Specificeer de tabellen etc. in de database mbv het create script.
--- Het script kan steeds opnieuw uitgevoerd worden omdat in het begin alles verwijderd wordt.
--- Let op: omdat bacchus de eigenaar moet zijn van de tabellen, moet dit script ook als user bacchus uitgevoerd worden.
-# sudo -u bacchus psql bacchusdb < <<path naar file>>/000_create_schema.sql
+    cd /opt/bacchus/oude_releases
+    mkdir versie-<yyyy>-<mm>-<dd>
+    cd versie-<yyyy>-<mm>-<dd>
+    mv /home/<user>/<filename.zip> .
+    unzip <filename.zip>
+Nu we de huidige versie bij de oude_releases hebben gezet is het tijd om de huidige versie ook werkelijk te gaan vervangen. Kijk eerst of de applicatie op dit moment draait:
 
-als het commando psql niet herkend wordt, zorg dan dat de locatie van dat commando in je PATH variabele staat.
-dat kan door bv in het bestand .bash_profile in de homedirectory van de user postgres toe te voegen:
-export PATH=$PATH:/Library/PostgreSQL/9.4/bin/
+	ps aux | grep bacchus
 
--- Applicatie lokaal draaien met gebruik van tomcat en de lokale postgres database (het profile demo-data zorgt dat je database gevuld wordt):
-# mvn clean install tomcat7:run -Dspring.profiles=test,postgres,demo-data
--- Let Op. Als de database al gevuld is het profile demo-data niet weer gebruiken:
-# mvn clean install tomcat7:run -Dspring.profiles=test,postgres
+Hiermee zie je alle processen waarin de naam Bacchus voorkomt, hier zul je onder andere processen zien voor de connectie met de database en een regel met java. Deze regel met java is de draaiende tomcat applicatie.
 
-Kijk bij het opstarten van de applicatie in de log of de tabellen goed gevonden worden.
+Als de applicatie draait is het tijd om het te stoppen. 
 
-=============================================================
-Let op!
-Als je in de applicatie wijzigingen gaat aanbrengen die invloed hebben op de database, moet je ook het script src/main/db/000_create_schema.sql aanpassen.
-Door bovenstaande procedure te volgen kun je testen of het script 000_create_schema.sql goed is.
-Nadat je met de spring profile 'demo-data' je database gevuld hebt, moet je een nieuwe dump maken van je database die je weer kunt gebruiken om demodata op de
- VPS te zetten.
--- maken van een database dump:
-# sudo -u postgres pg_dump bacchusdb -c > src/main/db/bacchus_dump.sql
+	sudo -u root bacchus stop
+Controleer nu of de applicatie ook werkelijk is gestopt via hetzelfde commando als eerst.
 
+	ps aux | grep bacchus
+Als de applicatie gestopt is zul je maar een enkele regel zien staan (namelijk het grep commando zelf). Zodra de applicatie volledig is gestopt kunnen we de oude .war verwijderen.
 
-=============================================================
+	cd /opt/bacchus/base/webapps
+	rm -rf api
+	rm -f api.war
+	ls -al (gebruik deze om te controleren dat de folder leeg is)
+	
+Eventueel kun je ook de database droppen en opnieuw aanmaken via de volgende commando's:
+	sudo -u postgres dropdb bacchusdb
+	sudo -u postgres createdb -O bacchus bacchusdb
 
-Extra basis info voor Postgres
+In het geval dat je databasewijzigingen hebt gemaakt zijn er twee opties. Ten eerste kan je het bacchus_dump.sql script opnieuw draaien, deze dropped eerst alle tabellen en voert daarna opnieuw de test data in. Ten tweede kan je zelf een script schrijven om modificaties te maken aan tabellen of nieuwe tabellen toe te voegen. 
 
--- Je kunt in de database kijken met een commandline interface.
-# sudo -u bacchus psql bacchusdb
--- Je kunt nu allerlei 'select' statements uitvoeren
--- Met het commando \d zie je welke tabellen er zijn
--- Met het commando \q verlaat je de postgres commandline interface.
+	sudo -u postgres psql bacchusdb < db/bacchus_dump.sql
+Nu is het tijd om de nieuwe .war op de juiste plaats te zetten. We renamen de .war naar api.war om te zorgen voor de juiste context 'api' in de applicatie URL. Verder gebruiken we het 'chown' commando om ervoor te zorgen dat andere mensen binnen jouw groep later ook een nieuwe api.war kunnen plaatsen.
 
--- Om de database compleet te verwijderen
-# sudo -u postgres dropdb bacchusdb
+	cd /opt/bacchus/base/webapps
+	cp /opt/bacchus/oude_releases/<filename>/bacchus-<versie>.war api.war 
+	chown <username>:bacchus api.war
 
--- Om de database user te verwijderen
-# sudo -u postgres dropuser bacchus
+Controleer via *ls -al* dat de map volledig leeg is buiten de api.war file.
+Indien nodig kan je de configuratie aanpassen in */opt/bacchus/base/conf*
+Nu kunnen we Bacchus starten via het volgende commando
 
-Als je de database en/of de user verwijderd, moet je die wel weer opnieuw aanmaken
-# sudo -u postgres createuser -P bacchus
-# sudo -u postgres createdb -O bacchus bacchusdb
+	sudo -u root bacchus start
+Tomcat zal nu de api.war uitpakken in een submap */opt/bacchus/base/webapps/api*
 
-=============================================================
+Controleer eerst wederom met hetzelfde commando of het proces loopt:
 
-Stappen om de applicatie te deployen op een VPS
-<versie> : de versie die je wilt deployen
-<lokaal path> : het pad waar jouw zipfile staat. 'mvn clean install' maakt de zip aan in de 'target' map
-<user>: jouw account op de vps, zoals dat door ons aan jou is toegekend
-<nr>: het nummer van jouw group zoals dat het onderdeel is van jullie vps
+	ps aux | grep bacchus
+	
+Kijk daarna in de logfiles of het opstarten goed gaat en tijdens de uitvoering van de applicatie geen fouten optreden, deze logfiles zijn te vinden in */opt/bacchus/base/logs*, lees deze bestanden via de volgende instructies:
 
-Lokaal uitvoeren:
--- Met het commando 'mvn clean install' wordt er in de target directory een bacchus-<versie>.zip bestand gemaakt.
--- Kopieer in een cmd terminal het zip bestand naar de server.
-# scp <lokaal path>/bacchus-<versie>.zip <user>@hhs-bacchus-<nr>.42.nl:/home/<user>
+	cd /opt/bacchus/base/logs
+	
+	# bekijken kan met:
+	less <bestandsnaam>
+	pagina voorwaarts: f
+	pagina terug: b
+	naar einde: G
+	naar begin: g
+	less stoppen: q
+  
+	# bestand volgen terwijl het loopt:
+	tail -f <bestandsnaam>
+	stoppen met ctrl-c
 
--- Log in op de server
-# ssh <user>@hhs-bacchus-<nr>.42.nl
+De applicatie kun je testen in een browser via de url https://hhs-bacchus-< nr >.42.nl
+Sluit aan het eind je shell op de VPS af via het volgende commando
 
--- Verplaats de zip file naar een map in oude_releases en pak hem daar uit
-# cd /opt/bacchus/oude_releases
-# mkdir bacchus-<versie>
-# cd bacchus-<versie>
-# mv /home/<user>/bacchus-<versie>.zip .
-# unzip bacchus-<versie>.zip
-
--- Voordat je de applicatie gaat deployen, moet deze eerst verwijderd en tomcat gestopt worden.
--- Verwijder eerst de oude war:
-# cd /opt/bacchus/base/webapps
-# rm -f api.war
--- Wacht een paar seconden totdat de submap api ook weg is. Dat kun je zien met het commando:
-# ll
--- Als de submap api weg is kan tomcat gestopt worden:
-# sudo -u root bacchus stop
-
--- Controleer of de applicatie gestopt is
-# ps aux | grep bacchus
-(als het goed is zie je nu maar één regel: het grep commando zelf)
-
--- Eventueel kun je de database verwijderen en opnieuw aanmaken
-# sudo -u postgres dropdb bacchusdb
-# sudo -u postgres createdb -O bacchus bacchusdb
-
-
--- Indien er databasewijzigingen zijn moet je deze eerst uitvoeren op de database
--- Dit script ruimt eerst de bestaande tabellen op.
------- Hoeft niet, zit in dump  # sudo -u bacchus psql bacchusdb < db/000_create_schema.sql
-
--- In plaats van het volledig opnieuw aanmaken van alle tabellen kun je ook een
--- aanvullend script maken dat wijzigingen uitvoert op je tabellen of nieuwe tabellen toevoegt.
-
-
--- Vul de testdata weer
--- Dit script maakt eerst de bestaande tabellen leeg.
-# sudo -u postgres psql bacchusdb < db/bacchus_dump.sql
-
-
--- Kopieer de nieuwe war als api.war (dit zorgt voor de juiste context 'api' in de applicatie url)
-# cd /opt/bacchus/base/webapps
-# cp /opt/bacchus/oude_releases/bacchus-<versie>/bacchus-<versie>.war api.war
-
--- Pas indien nodig de configuratie aan. Deze vind je in /opt/bacchus/base/conf
-
--- Start bacchus weer op
-# sudo -u root bacchus start
-
--- tomcat zal nu je api.war uitpakken in een submap /opt/bacchus/base/webapps/api
-
--- Kijk in de logfiles of het opstarten goed gaat en of er tijden het uitvoeren van de applicatie niets fout gaat.
--- De logfiles vind je in /opt/bacchus/base/logs
-
-De applicatie kun je testen in een browser via de url https://hhs-bacchus-<nr>.42.nl
+	exit
 
 =============================================================
+
+
