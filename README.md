@@ -5,14 +5,14 @@ Maak een war aan met het volgende commando
 
     mvn clean install
 
-Hierna zul je in de target folder van het project een .zip bestand zien staan. Dit bestand moet eerst naar de VPS gekopieerd worden. Gebruik hiervoor het volgende commando
+Hierna zul je in de target folder van het project een .zip en een .war bestand zien staan. De .zip bevat ook database scripts. Indien je geen wijzigingen hebt gemaakt aan de database dan volstaat het om hier de .war te gebruiken in plaats van de .zip. Een van deze bestanden moet eerst naar de VPS gekopieerd worden. Gebruik hiervoor het volgende commando: (vervang in deze stap en opkomende stappen .zip met .war indien je de .war gebruikt)
 
 	scp <filename.zip> <username>@hhs-bacchus-<nr>.42.nl:/home/<username>
 
 Log nu in op de server
 
     ssh <user>@hhs-bacchus-<nr>.42.nl
-Voordat we deze nieuwe versie gaan deployen willen we de versie eerst in de oude_releases folder plaatsen. Dit doen we om een centrale plek te hebben met alle versies, zo kunnen we eventueel ook met minimale moeite een versie terug gaan indien iets niet goed blijkt te gaan. Let op dat op deze manier een versie teruggaan een stuk complexer wordt wanneer er databasewijzigingen zijn gemaakt. Eerst gaan we op de server naar de oude_releases map, daarna maken we een nieuwe folder aan voor deze versie van de applicatie en via het laatste commando verplaatsen we de zip file naar de gemaakte folder. 
+Voordat we deze nieuwe versie gaan deployen willen we de versie eerst in de oude_releases folder plaatsen. Dit doen we om een centrale plek te hebben met alle versies, zo kunnen we eventueel ook met minimale moeite een versie terug gaan indien iets niet goed blijkt te gaan. Let op dat op deze manier een versie teruggaan een stuk complexer wordt wanneer er databasewijzigingen zijn gemaakt. Eerst gaan we op de server naar de oude_releases map, daarna maken we een nieuwe folder aan voor deze versie van de applicatie en via het laatste commando verplaatsen we de zip file naar de gemaakte folder. Gebruik het unzip commando enkel als je de .zip file gebruikt, bij de .war is de unzip niet nodig. 
 
     cd /opt/bacchus/oude_releases
     mkdir versie-<yyyy>-<mm>-<dd>
@@ -38,11 +38,12 @@ Als de applicatie gestopt is zul je maar een enkele regel zien staan (namelijk h
 	rm -f api.war
 	ls -al (gebruik deze om te controleren dat de folder leeg is)
 	
-Eventueel kun je ook de database droppen en opnieuw aanmaken via de volgende commando's:
+Eventueel kun je ook de database droppen en opnieuw aanmaken via de volgende commando's (kijk voor meer informatie in de confluence documentatie):
+
 	sudo -u postgres dropdb bacchusdb
 	sudo -u postgres createdb -O bacchus bacchusdb
 
-In het geval dat je databasewijzigingen hebt gemaakt zijn er twee opties. Ten eerste kan je het bacchus_dump.sql script opnieuw draaien, deze dropped eerst alle tabellen en voert daarna opnieuw de test data in. Ten tweede kan je zelf een script schrijven om modificaties te maken aan tabellen of nieuwe tabellen toe te voegen. 
+In het geval dat je databasewijzigingen hebt gemaakt zijn er twee opties. Ten eerste kan je lokaal een database dump maken en het bacchus_dump.sql script opnieuw draaien op de server, deze dropped eerst alle tabellen en voert daarna opnieuw de test data in. Ten tweede kan je zelf een script schrijven om modificaties te maken aan tabellen of nieuwe tabellen toe te voegen. Kijk voor meer informatie in de confluence documentatie.
 
 	sudo -u postgres psql bacchusdb < db/bacchus_dump.sql
 Nu is het tijd om de nieuwe .war op de juiste plaats te zetten. We renamen de .war naar api.war om te zorgen voor de juiste context 'api' in de applicatie URL. Verder gebruiken we het 'chown' commando om ervoor te zorgen dat andere mensen binnen jouw groep later ook een nieuwe api.war kunnen plaatsen.
