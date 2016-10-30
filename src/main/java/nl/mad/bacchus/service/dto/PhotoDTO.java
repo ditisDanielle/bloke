@@ -3,7 +3,7 @@ package nl.mad.bacchus.service.dto;
 import java.io.IOException;
 
 import nl.mad.bacchus.model.Photo;
-import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Product;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -28,8 +28,8 @@ public class PhotoDTO {
         return photoDTO;
     }
 
-    public Photo createPhotoFor(Wine wine) {
-        return new Photo(content, wine, contentType);
+    public Photo createPhotoFor(Product product) {
+        return new Photo(content, product, contentType);
     }
 
     public boolean isEmpty() {

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import com.google.common.collect.Iterables;
 import nl.mad.bacchus.AbstractSpringTest;
 import nl.mad.bacchus.builder.DataBuilder;
+import nl.mad.bacchus.model.Address;
 import nl.mad.bacchus.model.Customer;
 import nl.mad.bacchus.model.Employee;
 import nl.mad.bacchus.model.User;
@@ -83,4 +84,35 @@ public class CustomerServiceTest extends AbstractSpringTest {
         Assert.assertEquals(Customer.class, result.getClass());
     }
 
+    @Test
+    public void testSaveWithStreet() {
+        String street = "Pinksterbloem";
+        Address address = new Address();
+        address.setStreet(street);
+        Customer customer = dataBuilder.newCustomer().withEmail("jan@42.nl").withFullName("Janne Man").withAddress(address).build();
+
+        Customer result = customerService.create(CustomerDTO.toDetailResultDTO(customer));
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getId());
+        Assert.assertEquals(result.getAddress().getStreet(), street);
+        Assert.assertEquals(Customer.class, result.getClass());
+    }
+
+    @Test
+    public void testSaveWithInvoiceAdress() {
+        String invoiceStreet = "Bleiswijkseweg";
+
+        Address invoiceAddress = new Address();
+        invoiceAddress.setStreet(invoiceStreet);
+
+        Customer customer = dataBuilder.newCustomer().withEmail("jan@42.nl").withFullName("Janne Man").withInvoiceAddress(invoiceAddress).build();
+
+        Customer result = customerService.create(CustomerDTO.toDetailResultDTO(customer));
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getId());
+        Assert.assertEquals(result.getInvoiceAddress().getStreet(), invoiceStreet);
+        Assert.assertEquals(Customer.class, result.getClass());
+    }
+
 }
+

@@ -36,4 +36,21 @@ public class EnumControllerTest extends AbstractControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.wineType[0].label").value("Rood"));
     }
 
+    @Test
+    public void testGetCheeseEnums() throws Exception{
+        this.webClient.perform(MockMvcRequestBuilders.get("/enum/cheese"))
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cheeseType").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cheeseType", hasSize(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cheeseType[0].id").value("HARD"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cheeseType[0].label").value("Hard"))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.milkType").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.milkType", hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.milkType[1].id").value("GOAT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.milkType[1].label").value("Geit"));
+
+
+    }
+
 }

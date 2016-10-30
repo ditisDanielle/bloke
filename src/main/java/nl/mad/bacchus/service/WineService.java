@@ -7,14 +7,18 @@ import java.util.List;
 
 import nl.mad.bacchus.model.Employee;
 import nl.mad.bacchus.model.Photo;
+import nl.mad.bacchus.model.Product;
 import nl.mad.bacchus.model.Wine;
 import nl.mad.bacchus.model.meta.Country;
+import nl.mad.bacchus.model.meta.WineRegion;
 import nl.mad.bacchus.model.meta.WineType;
+import nl.mad.bacchus.repository.PhotoRepository;
 import nl.mad.bacchus.repository.WineRepository;
 import nl.mad.bacchus.service.dto.PhotoDTO;
 import nl.mad.bacchus.service.dto.WineDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since Mar 11, 2015
  */
 @Service
-@Transactional
 public class WineService extends ReadService<Wine> {
 
     private final WineRepository wineRepository;
@@ -35,9 +38,10 @@ public class WineService extends ReadService<Wine> {
     @Autowired
     public WineService(WineRepository wineRepository, PhotoService photoService) {
         super(wineRepository);
-        this.wineRepository = wineRepository;
         this.photoService = photoService;
+        this.wineRepository = wineRepository;
     }
+
 
     /**
      * Searches for wines that match the given name, country, region, wine type and year.
@@ -46,17 +50,18 @@ public class WineService extends ReadService<Wine> {
      * @param wineType Wine type to look for, if null any type is considered valid
      * @return List of all wines found
      */
-    public List<Wine> search(String name, Country country, WineType wineType) {
+    public List<Wine> search(String name, Country country, WineRegion wineRegion, WineType wineType) {
         String wineName = (name != null) ? name : "";
         String countryName = (country != null) ? country.name() : "";
+        String wineRegionName = (wineRegion != null) ? wineRegion.name() : "";
         String typeName = (wineType != null) ? wineType.name() : "";
-        return wineRepository.search(wineName, countryName, typeName);
+        return wineRepository.search(wineName, countryName,wineRegionName, typeName);
     }
 
     /**
      * Creates a Wine with given wine- and photo data.
      * @param wineDTO the wine data
-     * @param photoDTO the photo data
+     *
      * @return Wine
      */
     @Secured(Employee.ADMIN)
@@ -72,7 +77,7 @@ public class WineService extends ReadService<Wine> {
      */
     @Secured(Employee.ADMIN)
     public Wine update(Long wineId, WineDTO wineDTO) {
-        Wine wine = wineRepository.findOne(wineId);
+        Wine wine = (Wine)wineRepository.findOne(wineId);
         return save(wineDTO.update(wine));
     }
 
@@ -82,10 +87,11 @@ public class WineService extends ReadService<Wine> {
 
     /**
      * Deletes the given wine with photo.
-     * @param wine Wine
+     * @param wineId Long
      */
     @Secured(Employee.ADMIN)
     public void delete(Long wineId) {
+        photoService.delete(wineId);
         wineRepository.delete(wineId);
     }
     
@@ -109,5 +115,6 @@ public class WineService extends ReadService<Wine> {
     public Photo findPhotoFor(Long wineId) {
         return photoService.findPhotoFor(wineId);
     }
+
     
 }

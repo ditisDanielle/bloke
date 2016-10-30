@@ -18,6 +18,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -33,7 +35,7 @@ import static org.springframework.security.core.context.SecurityContextHolder.MO
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends GlobalMethodSecurityConfiguration {
-    
+
     /**
      * Initializes the SecurityContextHolder to share the Authentication object with child threads.
      * This is needed when making use of @Async methods that are also annotated with @Secured.
@@ -47,10 +49,10 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService());
-            //.passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsService())
+                .passwordEncoder(passwordEncoder());
     }
-    
+
     /**
      * Create a new spring user details service.
      */
@@ -58,6 +60,13 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
     public SpringUserDetailService userDetailsService() {
         return new SpringUserDetailService();
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder;
+    }
+
 
     /**
      * Publish the authentication manager.
@@ -67,7 +76,7 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
     public AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
-    
+
     /**
      * Web security configuration.
      *
@@ -88,6 +97,7 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
             http.httpBasic().and()
                 .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
                 .authorizeRequests()
+                    .antMatchers("/order/**").authenticated() // Voor /orders moet je geauthenticeerd zijn.
                     .antMatchers("/").permitAll()
                 .and()
                     .logout()
@@ -102,5 +112,5 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
         }
 
     }
-    
+
 }

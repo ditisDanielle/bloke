@@ -4,6 +4,7 @@
 package nl.mad.bacchus.model;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import java.math.BigDecimal;
@@ -18,18 +19,34 @@ import java.math.BigDecimal;
 public class OrderLine extends BaseEntity {
     
     @ManyToOne
-    private Wine wine;
+    private Product product;
+
+/*
+    @ManyToOne
+    @JoinColumn(name ="customer_id")
+    private Customer customer;
+
+    public Customer getCustomer()
+    {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer)
+    {
+        this.customer = customer;
+    } */
+
     
     private BigDecimal cost;
 
     private int quantity;
 
-    public Wine getWine() {
-        return wine;
+    public Product getProduct() {
+        return product;
     }
     
-    public void setWine(Wine wine) {
-        this.wine = wine;
+    public void setProduct(Product product) {
+        this.product = product;
     }
     
     public BigDecimal getCost() {

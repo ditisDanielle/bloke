@@ -71,6 +71,12 @@ public class WineBuilder extends AbstractBuilder {
         	return withSpecs(type, region);
         }
 
+        public WineBuildCommand withSpecs(WineType type,WineRegion region, Integer year, BigDecimal cost) {
+            wine.setCost(cost);
+            return withSpecs(type, region, year);
+        }
+
+
         /**
          * Changes the specs of the wine.
          * @param type the type of wine.

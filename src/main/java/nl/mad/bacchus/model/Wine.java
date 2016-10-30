@@ -13,11 +13,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
+import javax.transaction.Transactional;
 
-import nl.mad.bacchus.model.meta.Country;
-import nl.mad.bacchus.model.meta.Labeled;
-import nl.mad.bacchus.model.meta.WineRegion;
-import nl.mad.bacchus.model.meta.WineType;
+import nl.mad.bacchus.model.meta.*;
 
 /**
  * Represents a tasty wine.
@@ -26,9 +24,8 @@ import nl.mad.bacchus.model.meta.WineType;
  * @since Jun 30, 2015
  */
 @Entity
-@DiscriminatorValue("wine")
 @PrimaryKeyJoinColumn(name = "product_id")
-public class Wine extends BaseEntity {
+public class Wine extends Product{
 
     @Enumerated(EnumType.STRING)
     private Country country = Country.UNKNOWN;
@@ -36,26 +33,10 @@ public class Wine extends BaseEntity {
     private WineRegion region = WineRegion.UNKNOWN;
     @Enumerated(EnumType.STRING)
     private WineType wineType;
-    @Transient
+
     private Integer year;
-    private String name;
-    private BigDecimal cost;
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public BigDecimal getCost() {
-        return cost;
-    }
-
-    public void setCost(BigDecimal cost) {
-        this.cost = cost;
-    }
     public WineRegion getRegion() {
         return region;
     }

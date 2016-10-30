@@ -12,6 +12,7 @@ import nl.mad.bacchus.AbstractControllerTest;
 import nl.mad.bacchus.model.Photo;
 import nl.mad.bacchus.model.Wine;
 import nl.mad.bacchus.model.meta.Country;
+import nl.mad.bacchus.model.meta.WineRegion;
 import nl.mad.bacchus.model.meta.WineType;
 import nl.mad.bacchus.repository.WineRepository;
 import nl.mad.bacchus.service.WineService;
@@ -56,6 +57,7 @@ public class WineControllerTest extends AbstractControllerTest {
     public void testCreate() throws Exception {
         Wine wine = new Wine();
         wine.setName("Bordeaux");
+        wine.setYear(1988);
         wine.setCost(BigDecimal.valueOf(10.55));
 
         new Expectations() {
@@ -65,11 +67,12 @@ public class WineControllerTest extends AbstractControllerTest {
             }
         };
 
-        MockMultipartFile jsonFile = new MockMultipartFile("form", "", "application/json", "{\"name\":\"Bordeaux\", \"cost\": \"10.55\"}".getBytes());
+        MockMultipartFile jsonFile = new MockMultipartFile("form", "", "application/json", "{\"name\":\"Bordeaux\",  \"cost\": \"10.55\",  \"year\":\"1988\"}".getBytes());
         this.webClient.perform(MockMvcRequestBuilders.fileUpload("/wine").file(jsonFile))
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bordeaux"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cost").value(10.55));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cost").value(10.55))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.year").value(1988));
     }
 
     @Test
@@ -125,11 +128,13 @@ public class WineControllerTest extends AbstractControllerTest {
         Wine form = new Wine();
         form.setName("Bordeaux");
         form.setCost(BigDecimal.valueOf(10.55));
+        form.setYear(1972);
 
         Wine wine = new Wine();
         wine.setId(1L);
         wine.setName("Bordeaux");
         wine.setCost(BigDecimal.valueOf(12.98));
+        wine.setYear(1988);
 
         new Expectations() {
             {
@@ -139,11 +144,12 @@ public class WineControllerTest extends AbstractControllerTest {
         };
 
         MockMultipartFile photoFile = new MockMultipartFile("photo", "bordeaux.jpg", "image/jpg", "photobytes".getBytes());
-        MockMultipartFile jsonFile = new MockMultipartFile("form", "", "application/json", "{\"name\":\"Bordeaux\", \"cost\": \"10.55\"}".getBytes());
+        MockMultipartFile jsonFile = new MockMultipartFile("form", "", "application/json", "{\"name\":\"Bordeaux\", \"cost\": \"10.55\", \"year\": \"1972\"}".getBytes());
         this.webClient.perform(MockMvcRequestBuilders.fileUpload("/wine/1").file(jsonFile).file(photoFile))
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("Bordeaux"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.cost").value(10.55));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.cost").value(10.55))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.year").value(1972));
     }
 
     @Test
@@ -164,10 +170,11 @@ public class WineControllerTest extends AbstractControllerTest {
     public void testSearch() throws Exception {
         Wine wine = new Wine();
         wine.setName("Pieters");
+        wine.setRegion(WineRegion.BORDEAUX);
 
         new Expectations() {
             {
-                wineService.search("Pieters", Country.FRANCE, WineType.RED);
+                wineService.search("Pieters", Country.FRANCE, WineRegion.BORDEAUX, WineType.RED);
                 result = wine;
             }
         };

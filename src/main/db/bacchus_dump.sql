@@ -410,8 +410,8 @@ ALTER TABLE ONLY wine ALTER COLUMN id SET DEFAULT nextval('wine_id_seq'::regclas
 --
 
 COPY email (id, sent, created, sent_on, customer_id, email_from, email_to, title, message) FROM stdin;
-1	t	2015-08-19 10:20:19.791	2015-08-19 10:20:19.791	1	William	bas@42.nl	Romeo + Juliet	Two households, both alike in dignitiy in fair Verona where we lay our scene.
-2	f	2015-08-19 10:20:19.794	\N	1	Jules	bas@42.nl	War of the Worlds	And yet accross the gulf of space, minds immeasurable superior to ours regarded this earth with envious eyes.
+1	t	2016-10-17 12:26:40.603	2016-10-17 12:26:40.603	1	William	bas@42.nl	Romeo + Juliet	Two households, both alike in dignitiy in fair Verona where we lay our scene.
+2	f	2016-10-17 12:26:40.613	\N	1	Jules	bas@42.nl	War of the Worlds	And yet accross the gulf of space, minds immeasurable superior to ours regarded this earth with envious eyes.
 \.
 
 
@@ -427,6 +427,7 @@ SELECT pg_catalog.setval('email_id_seq', 2, true);
 --
 
 COPY money_transaction (id, customer_id, date, amount, description) FROM stdin;
+1	1	2016-10-17 16:44:35.796	67.00	Refund order #2
 \.
 
 
@@ -434,7 +435,7 @@ COPY money_transaction (id, customer_id, date, amount, description) FROM stdin;
 -- Name: money_transaction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bacchus
 --
 
-SELECT pg_catalog.setval('money_transaction_id_seq', 1, false);
+SELECT pg_catalog.setval('money_transaction_id_seq', 1, true);
 
 
 --
@@ -442,8 +443,8 @@ SELECT pg_catalog.setval('money_transaction_id_seq', 1, false);
 --
 
 COPY "order" (id, date, status, customer_id) FROM stdin;
-1	2015-08-19 10:20:19.8	IN_PROGRESS	1
-2	2015-08-19 10:20:19.806	IN_PROGRESS	1
+2	2016-10-17 12:26:40.672	REFUNDED	1
+1	2016-10-17 12:26:40.643	COMPLETED	1
 \.
 
 
@@ -459,11 +460,11 @@ SELECT pg_catalog.setval('order_id_seq', 2, true);
 --
 
 COPY order_line (id, order_id, wine_id, cost, quantity) FROM stdin;
-1	1	1	30.00	42
-2	1	7	10.00	16
-3	1	3	22.00	2
-4	2	2	63.00	1
-5	2	7	10.00	1
+1	1	1	96.00	42
+2	1	7	11.00	16
+3	1	3	74.00	2
+4	2	2	56.00	1
+5	2	7	11.00	1
 \.
 
 
@@ -504,10 +505,10 @@ SELECT pg_catalog.setval('photo_id_seq', 10, true);
 --
 
 COPY "user" (id, type, email, full_name, password, active, street, street_number, city, postal_code, invoice_street, invoice_street_number, invoice_city, invoice_postal_code, balance) FROM stdin;
-1	customer	bas@42.nl	Bas de Klant	welkom42	t	\N	\N	\N	\N	\N	\N	\N	\N	42.00
-2	customer	rob@42.nl	Rob de Koper	welkom42	t	\N	\N	\N	\N	\N	\N	\N	\N	42.00
-3	employee	erik@42.nl	Erik de Medewerker	welkom42	t	\N	\N	\N	\N	\N	\N	\N	\N	\N
-4	employee	jeroen@42.nl	Jeroen de Baas	welkom42	t	\N	\N	\N	\N	\N	\N	\N	\N	\N
+2	customer	rob@42.nl	Rob de Koper	$2a$10$lbL8UQQGniusiZHMckWEaOSi5b9dih/8otXVfVh9OmFHDsoGQEljq	t	\N	\N	\N	\N	\N	\N	\N	\N	42.00
+3	employee	erik@42.nl	Erik de Medewerker	$2a$10$fwY8AbOAgPU/scQLVIlEwuaJnRmCpdTEFKi9R7hxOUtgMQ/CCh7zW	t	\N	\N	\N	\N	\N	\N	\N	\N	\N
+4	employee	jeroen@42.nl	Jeroen de Baas	$2a$10$Rri5SZLh1vf8y8J1ByMD..Ma2wrOpOmBy7Rh1KW.mteCpBjWVjH7C	t	\N	\N	\N	\N	\N	\N	\N	\N	\N
+1	customer	bas@42.nl	Bas de Klant	$2a$10$8d535qZWKLKhCVGtU3rfrO0vkrN8I9M1Ol5gyDwEV5yjAKwEuv8Ie	t	\N	\N	\N	\N	\N	\N	\N	\N	109.00
 \.
 
 
@@ -515,7 +516,7 @@ COPY "user" (id, type, email, full_name, password, active, street, street_number
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: bacchus
 --
 
-SELECT pg_catalog.setval('user_id_seq', 4, true);
+SELECT pg_catalog.setval('user_id_seq', 7, true);
 
 
 --
@@ -523,16 +524,16 @@ SELECT pg_catalog.setval('user_id_seq', 4, true);
 --
 
 COPY wine (id, country, region, wine_type, name, cost, year) FROM stdin;
-1	FRANCE	BORDEAUX	WHITE	Chateau d’Yquem Sauternes	30.00	\N
-2	FRANCE	BORDEAUX	WHITE	Chateau Lafite Rothschild	63.00	\N
-3	FRANCE	BURGUNDY	RED	Domaine Romanée Conti	22.00	\N
-4	FRANCE	BURGUNDY	RED	Chorey-Les-Beaune	72.00	\N
-5	FRANCE	CHAMPAGNE	SPARKLING	Salon Champagne Brut Blanc de Blancs	68.00	\N
-6	FRANCE	CHAMPAGNE	SPARKLING	Krug Champagne Clos du Mesnil	85.00	\N
-7	FRANCE	BORDEAUX	RED	Chateau Haut Brion	10.00	\N
-8	FRANCE	RHONE	RED	JL Chave Hermitage	68.00	\N
-9	FRANCE	BURGUNDY	RED	Domaine Romanée Conti La Tache	40.00	\N
-10	FRANCE	CHAMPAGNE	SPARKLING	Moet et Chandon Dom Perignon	77.00	\N
+1	FRANCE	BORDEAUX	WHITE	Chateau d’Yquem Sauternes	96.00	\N
+2	FRANCE	BORDEAUX	WHITE	Chateau Lafite Rothschild	56.00	\N
+3	FRANCE	BURGUNDY	RED	Domaine Romanée Conti	74.00	\N
+4	FRANCE	BURGUNDY	RED	Chorey-Les-Beaune	37.00	\N
+5	FRANCE	CHAMPAGNE	SPARKLING	Salon Champagne Brut Blanc de Blancs	19.00	\N
+6	FRANCE	CHAMPAGNE	SPARKLING	Krug Champagne Clos du Mesnil	48.00	\N
+7	FRANCE	BORDEAUX	RED	Chateau Haut Brion	11.00	\N
+8	FRANCE	RHONE	RED	JL Chave Hermitage	94.00	\N
+9	FRANCE	BURGUNDY	RED	Domaine Romanée Conti La Tache	98.00	\N
+10	FRANCE	CHAMPAGNE	SPARKLING	Moet et Chandon Dom Perignon	76.00	\N
 \.
 
 

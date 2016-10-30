@@ -49,18 +49,24 @@ public class WineController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public WineDTO findById(@PathVariable Long id) {
-        return toResultDTO(wineService.findById(id));
+        return toResultDTO((Wine)wineService.findById(id));
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public List<WineDTO> get() {
-        return stream(wineService.findAll().spliterator(), false).map(wine -> toResultDTO(wine)).collect(toList());
+        return stream(wineService.findAll().spliterator(), false).map(wine -> toResultDTO((Wine)wine)).collect(toList());
     }
 
     @RequestMapping(method = RequestMethod.POST)
     public WineDTO create(@Valid @RequestPart WineDTO form, @RequestPart(required = false) MultipartFile photo) throws IOException {
         Wine wine = wineService.create(form);
-        wineService.savePhotoFor(wine, newPhotoDTO(photo));
+        try {
+            wineService.savePhotoFor(wine, newPhotoDTO(photo));
+        } catch (IllegalArgumentException e) {
+            wineService.delete(wine.getId());
+            throw e;
+        }
+
         return toResultDTO(wine);
     }
 
@@ -81,7 +87,7 @@ public class WineController {
             @RequestParam(required = false) Country country,
             @RequestParam(required = false) WineRegion wineRegion,
             @RequestParam(required = false) WineType wineType) {
-        return wineService.search(name, country, wineType).stream().map(wine -> toResultDTO(wine)).collect(toList());
+        return wineService.search(name, country, wineRegion,  wineType).stream().map(wine -> toResultDTO(wine)).collect(toList());
     }
 
     @RequestMapping(value = "/{wineId}/photo", method = RequestMethod.GET)

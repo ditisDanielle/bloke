@@ -15,12 +15,14 @@ import nl.mad.bacchus.model.Employee;
 import nl.mad.bacchus.model.Order;
 import nl.mad.bacchus.model.Order.OrderStatus;
 import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Cheese;
 import nl.mad.bacchus.service.dto.OrderDTO;
 import nl.mad.bacchus.service.dto.OrderLineDTO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -71,6 +73,18 @@ public class OrderServiceTest extends AbstractSpringTest {
         Assert.assertEquals(OrderStatus.COMPLETED, order.getStatus());
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void testFindAllAsCustomer() {
+        loginWithRoles(Customer.ROLE);
+        Iterable<Order> orders = orderService.findAll();
+    }
+
+    @Test
+    public void testFindAllAsAdmin() {
+        loginWithRoles(Employee.ADMIN);
+        Iterable<Order> orders = orderService.findAll();
+        Assert.assertNotNull(orders);
+    }
     @Test
     public void testRefund() {
         Customer customer = dataBuilder.newCustomer().withEmail("jan@42.nl").withFullName("Janne Man").withBalance(new BigDecimal(42)).save();

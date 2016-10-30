@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import nl.mad.bacchus.service.EmailService;
 import nl.mad.bacchus.service.dto.EmailDTO;
@@ -18,8 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,52 +27,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/email")
 public class EmailController {
 
-	private EmailService emailService;
-    
-    private ObjectMapper objectMapper;
+    private EmailService emailService;
 
-	@Autowired
-    public EmailController(EmailService emailService, ObjectMapper objectMapper) {
-		this.emailService = emailService;
-        this.objectMapper = objectMapper;
-	}
-	
-    @RequestMapping(value = "/**/*")
-    public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Principal principal = request.getUserPrincipal();
-        if (request.getMethod().equals(HttpMethod.POST.name())) {
-            // Parse the email values from our request body
-            EmailDTO emailDTO = objectMapper.readValue(request.getReader(), EmailDTO.class);
-            sendEmailToAll(emailDTO, principal);
-        } else {
-            String pathInfo = request.getPathInfo();
-            Object result = null;
-            if ("/email/customer/current".equals(pathInfo)) {
-                result = getByCustomer(principal);
-            } else {
-                Long id = Long.parseLong(StringUtils.substringAfterLast(pathInfo, "/"));
-                result = getById(id, principal);
-            }
-            // Print the service result to our response body
-            objectMapper.writeValue(response.getWriter(), result);
-        }
-        // Mark the response as successful
-        response.setStatus(HttpStatus.OK.value());
+    @Autowired
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
     }
-    
-    private EmailDTO getById(Long id, Principal principal) {
+
+    @ResponseBody
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public EmailDTO getById(@PathVariable Long id, Principal principal) {
         return toDetailResultDTO(emailService.findById(id, principal.getName()));
     }
 
-    private List<EmailDTO> getByCustomer(Principal principal) {
+    @ResponseBody
+    @RequestMapping(value = "/customer/current", method = RequestMethod.GET)
+    public List<EmailDTO> getByCustomer(Principal principal)
+    {
         return emailService.findEmailByCustomer(principal.getName())
                 .stream()
                 .map(email -> toListResultDTO(email))
                 .collect(toList());
-	}
+    }
 
-    private void sendEmailToAll(EmailDTO emailDTO, Principal principal) {
+    @RequestMapping(value = "/customer/all", method = RequestMethod.POST)
+    public void sendEmailToAll(@Valid @RequestBody EmailDTO emailDTO, Principal principal) {
         emailService.sendEmailToAllCustomers(emailDTO, principal.getName());
-	}
+    }
 
 }

@@ -9,8 +9,9 @@ import nl.mad.bacchus.builder.EmployeeBuilder.EmployeeBuildCommand;
 import nl.mad.bacchus.builder.OrderBuilder.OrderBuildCommand;
 import nl.mad.bacchus.builder.PhotoBuilder.PhotoBuildCommand;
 import nl.mad.bacchus.builder.WineBuilder.WineBuildCommand;
-import nl.mad.bacchus.model.Customer;
-import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.builder.CheeseBuilder.CheeseBuildCommand;
+import nl.mad.bacchus.builder.MatchBuilder.MatchBuildCommand;
+import nl.mad.bacchus.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,12 @@ public class DataBuilder {
 
 	@Autowired
 	private WineBuilder wineBuilder;
+
+	@Autowired
+	private MatchBuilder matchBuilder;
+
+	@Autowired
+	private CheeseBuilder cheeseBuilder;
 
 	@Autowired
 	private PhotoBuilder photoBuilder;
@@ -77,14 +84,18 @@ public class DataBuilder {
 		return wineBuilder.newWine();
 	}
 
+	public CheeseBuildCommand newCheese() {return cheeseBuilder.newCheese();}
+
+	public MatchBuildCommand newMatch() {return matchBuilder.newMatch();}
+
 	/**
      * start building a new photo for a wine.
      * 
      * @param wine Wine
      * @return
      */
-    public PhotoBuildCommand newPhoto(Wine wine) {
-		return photoBuilder.newPhoto(wine);
+    public PhotoBuildCommand newPhoto(Product product) {
+		return photoBuilder.newPhoto(product);
 	}
 
 	public EmailBuildCommand newEmail(Customer customer) {

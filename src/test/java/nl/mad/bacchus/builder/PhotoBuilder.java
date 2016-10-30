@@ -5,24 +5,25 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import nl.mad.bacchus.model.Photo;
+import nl.mad.bacchus.model.Product;
 import nl.mad.bacchus.model.Wine;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PhotoBuilder extends AbstractBuilder {
 
-    public PhotoBuildCommand newPhoto(Wine wine) {
-		return new PhotoBuildCommand(wine);
+    public PhotoBuildCommand newPhoto(Product product) {
+		return new PhotoBuildCommand(product);
 	}
 
 	public class PhotoBuildCommand {
 
-        private Wine wine;
+        private Product product;
 		private byte[] data;
 		private String contentType;
 
-        public PhotoBuildCommand(Wine wine) {
-            this.wine = wine;
+        public PhotoBuildCommand(Product product) {
+            this.product = product;
 		}
 
 		public PhotoBuildCommand fromTestResource(String name) {
@@ -66,7 +67,7 @@ public class PhotoBuilder extends AbstractBuilder {
 		 * @return the created photo
 		 */
 		public Photo build() {
-            return new Photo(data, wine, contentType);
+            return new Photo(data, product, contentType);
 		}
 
 		/**

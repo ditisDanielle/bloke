@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Cheese;
 import nl.mad.bacchus.model.meta.Labeled;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +30,7 @@ public class EnumController {
 
     @RequestMapping(value = "/cheese", method = RequestMethod.GET)
     public Map<String, Set<EnumValue>> getCheeseEnums() {
-        throw new NotImplementedException("TODO: implement this!");
+        return this.getAllEnumValues(Cheese.getEnumValues());
     }
 
     private <T extends Enum & Labeled> Map<String, Set<EnumValue>> getAllEnumValues(Map<String, T[]> values) {

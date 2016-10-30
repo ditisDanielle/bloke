@@ -5,6 +5,7 @@ package nl.mad.bacchus.repository;
 
 import java.util.List;
 
+import nl.mad.bacchus.model.Product;
 import nl.mad.bacchus.model.Wine;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +24,8 @@ public interface WineRepository extends JpaRepository<Wine, Long> {
      */
     Wine findByName(String name);
 
+
+
     /**
      * returns all wines matching the given country, regio, type and year
      * @param name Name of the wine to look for, if null any name will be considered valid
@@ -33,9 +36,11 @@ public interface WineRepository extends JpaRepository<Wine, Long> {
     @Query("select wine FROM Wine wine " +
             "where (:name = '' or lower(wine.name) like lower(concat('%', :name, '%'))) " +
             "and (:country = '' or wine.country = :country) " +
+            "and (:region = '' or wine.region = :region)" +
             "and (:wineType = '' or wine.wineType = :wineType) ")
     List<Wine> search(@Param("name") String name,
             @Param("country") String country,
+                      @Param("region") String region,
             @Param("wineType") String type);
 
 }

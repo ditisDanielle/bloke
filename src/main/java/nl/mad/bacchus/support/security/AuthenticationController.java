@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Authentication controller.
  *
@@ -28,10 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/authentication")
 public class AuthenticationController {
-    
-    private LocalDateTime loginTime;
+
     private final SpringUserDetailService userDetailsService;
-    
+
     @Autowired
     public AuthenticationController(SpringUserDetailService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -39,12 +40,12 @@ public class AuthenticationController {
 
     @RequestMapping(value = "/team", method = RequestMethod.GET)
     public Map<String, String> getTeamName() {
-        return Collections.singletonMap("teamName", "Undefined Team");
+        return Collections.singletonMap("teamName", "Team05 rules!");
     }
 
     @RequestMapping(value = "/logintime", method = RequestMethod.GET)
-    public Map<String, LocalDateTime> getLoggedInSince() {
-        return Collections.singletonMap("loginTime", loginTime);
+    public Map<String, LocalDateTime> getLoggedInSince(HttpServletRequest request) {
+        return Collections.singletonMap("loginTime", (LocalDateTime) request.getSession().getAttribute("loginname"));
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -53,8 +54,8 @@ public class AuthenticationController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public UserDTO login(Principal principal) {
-        loginTime = LocalDateTime.now();
+    public UserDTO login(HttpServletRequest request, Principal principal) {
+        request.getSession().setAttribute("loginname", LocalDateTime.now());
         return findUserByPrincipal(principal);
     }
 

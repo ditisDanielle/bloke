@@ -1,8 +1,6 @@
 package nl.mad.bacchus.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,9 +8,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Entity
 public class Photo extends BaseEntity {
 
+
     @NotNull
     @OneToOne
-    private Wine wine;
+    private Product product;
     @NotEmpty
     @Column(length = 10000 * 1024)
     private byte[] content;
@@ -23,10 +22,10 @@ public class Photo extends BaseEntity {
         super();
     }
 
-    public Photo(byte[] content, Wine wine, String contentType) {
+    public Photo(byte[] content, Product product, String contentType) {
         this();
         this.content = content;
-        this.wine = wine;
+        this.product = product;
         this.contentType = contentType;
     }
 
@@ -34,8 +33,8 @@ public class Photo extends BaseEntity {
         return content;
     }
 
-    public Wine getWine() {
-        return wine;
+    public Product getProduct() {
+        return product;
     }
 
     public String getContentType() {

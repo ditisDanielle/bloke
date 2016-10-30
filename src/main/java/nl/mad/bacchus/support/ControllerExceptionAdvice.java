@@ -51,13 +51,13 @@ public class ControllerExceptionAdvice {
         return new ExceptionDescription(ex);
     }
 
-    /**
-     * Handle {@link HttpRequestMethodNotSupportedException}, shows nothing.
-     */
-    @ExceptionHandler({ HttpRequestMethodNotSupportedException.class })
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleRequestMethodNotSupported() {
+    @ExceptionHandler({ IllegalStateException.class })
+    @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
+    @ResponseBody
+    public ExceptionDescription handlePayment_Required(Exception ex) {
+        return new ExceptionDescription(ex);
     }
+
 
     /**
      * Handle {@link AccessDeniedException}, shows nothing.

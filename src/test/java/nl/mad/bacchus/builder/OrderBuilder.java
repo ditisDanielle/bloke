@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import nl.mad.bacchus.model.Customer;
 import nl.mad.bacchus.model.Order;
 import nl.mad.bacchus.model.OrderLine;
-import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Product;
 import org.springframework.stereotype.Component;
 
 /**
@@ -52,11 +52,11 @@ public class OrderBuilder extends AbstractBuilder {
         /**
          * adds an orderline.
          */
-        public OrderBuildCommand withLine(int quantity, Wine wine) {
+        public OrderBuildCommand withLine(int quantity, Product product) {
             OrderLine orderLine = new OrderLine();
             orderLine.setQuantity(quantity);
-            orderLine.setWine(wine);
-            orderLine.setCost(wine.getCost());
+            orderLine.setProduct(product);
+            orderLine.setCost(product.getCost());
             order.addLine(orderLine);
             return this;
         }

@@ -4,6 +4,7 @@
 package nl.mad.bacchus.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import com.google.common.collect.Iterables;
 import nl.mad.bacchus.AbstractSpringTest;
@@ -11,8 +12,10 @@ import nl.mad.bacchus.builder.DataBuilder;
 import nl.mad.bacchus.model.Employee;
 import nl.mad.bacchus.model.Photo;
 import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Product;
 import nl.mad.bacchus.model.meta.WineRegion;
 import nl.mad.bacchus.model.meta.WineType;
+import nl.mad.bacchus.service.dto.WineDTO;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,16 +73,19 @@ public class WineServiceTest extends AbstractSpringTest {
     @Test
     public void testSave() throws IOException {
         Wine wine = dataBuilder.newWine().withName("Chateau Latour")
-                                         .withSpecs(WineType.RED, WineRegion.BORDEAUX, 2012)
+                                         .withSpecs(WineType.RED, WineRegion.BORDEAUX, 2012, BigDecimal.valueOf(2.22))
                                              .build();
 
         Wine result = wineService.create(toResultDTO(wine));
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getId());
-        
+        Assert.assertNotNull(result.getCost());
+
         Wine created = wineService.findById(result.getId());
         Assert.assertEquals(WineType.RED, created.getWineType());
         Assert.assertEquals(WineRegion.BORDEAUX, created.getRegion());
+        Assert.assertEquals(BigDecimal.valueOf(2.22), created.getCost());
+
     }
 
     @Test
@@ -90,6 +96,7 @@ public class WineServiceTest extends AbstractSpringTest {
         wineService.delete(wine.getId());
         Assert.assertNull(wineService.findById(wine.getId()));
     }
+
     @Test
     public void testDeleteWithPhoto() throws IOException {
         Wine wine = dataBuilder.newWine().withName("Chateau Latour").build();
@@ -97,7 +104,16 @@ public class WineServiceTest extends AbstractSpringTest {
         byte[] winePhoto = copyToByteArray(new ClassPathResource("/wines/latache.jpeg").getInputStream());
         MultipartFile file = new MockMultipartFile("name", "originalName", "image/jpeg", winePhoto);
 
-        //TODO: Test deletion of a Wine with a connected Photo...
+        Wine result = wineService.create(toResultDTO(wine));
+        Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getId());
+
+        wineService.savePhotoFor(result, newPhotoDTO(file));
+
+        wineService.delete(result.getId());
+
+        result = wineService.findById(result.getId());
+        Assert.assertNull(result);
     }
 
     @Test
@@ -128,10 +144,18 @@ public class WineServiceTest extends AbstractSpringTest {
     @Test
     public void testSearch() {
         dataBuilder.newWine().withName("Geralt").withSpecs(WineType.ROSE, WineRegion.BORDEAUX, 2010).save();
-        dataBuilder.newWine().withName("Yennefer").withSpecs(WineType.RED, WineRegion.BORDEAUX, 2010).save();
+        dataBuilder.newWine().withName("Yennefer").withSpecs(WineType.RED, WineRegion.UNKNOWN, 2010).save();
         dataBuilder.newWine().withName("Ciri").withSpecs(WineType.ROSE, WineRegion.BORDEAUX, 2009).save();
-        dataBuilder.newWine().withName("Triss").withSpecs(WineType.RED, WineRegion.MCLAREN_VALE, 2010).save();
+        dataBuilder.newWine().withName("Triss").withSpecs(WineType.RED, WineRegion.BURGUNDY, 2010).save();
+        dataBuilder.newWine().withName("Cavenaugh").withSpecs(WineType.WHITE, WineRegion.UNKNOWN, 1998).save();
+        dataBuilder.newWine().withName("Toros").withSpecs(WineType.RED, WineRegion.BORDEAUX, 2006).save();
 
-        //TODO: implement test
+
+        Assert.assertEquals(6,wineService.search(null,null,null, null).size());
+        Assert.assertEquals(2,wineService.search(null,null,WineRegion.UNKNOWN, null).size());
+        Assert.assertEquals(3,wineService.search(null,null,WineRegion.BORDEAUX, null).size());
+        Assert.assertEquals(1,wineService.search(null,null,WineRegion.BURGUNDY, null).size());
+        Assert.assertEquals(1,wineService.search(null,null,WineRegion.BORDEAUX, WineType.RED).size());
+
     }
 }

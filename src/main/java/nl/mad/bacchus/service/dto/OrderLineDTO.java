@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import nl.mad.bacchus.model.OrderLine;
-import nl.mad.bacchus.model.Wine;
+import nl.mad.bacchus.model.Product;
 
 /**
  * Creates a product specific order.
@@ -33,19 +33,19 @@ public class OrderLineDTO {
         OrderLineDTO dto = new OrderLineDTO();
         dto.cost = orderLine.getCost();
         dto.quantity = orderLine.getQuantity();
-        dto.productName = orderLine.getWine().getName();
+        dto.productName = orderLine.getProduct().getName();
         return dto;
     }
 
-    public OrderLine createOrderLine(Wine wine) {
+    public OrderLine createOrderLine(Product product) {
         OrderLine line = new OrderLine();
-        line.setWine(wine);
-        line.setCost(wine.getCost());
+        line.setProduct(product);
+        line.setCost(product.getCost());
         line.setQuantity(quantity);
         return line;
     }
 
-    public long getWineId() {
+    public long getProductId() {
         return id;
     }
 }

@@ -4,12 +4,15 @@
 package nl.mad.bacchus.model;
 
 
+import javax.persistence.Embeddable;
+
 /**
  * Represents an address.
  *
  * @author Jeroen van Schagen
  * @since Jun 30, 2015
  */
+@Embeddable
 public class Address {
     
     private String street;
@@ -53,3 +56,4 @@ public class Address {
     }
 
 }
+

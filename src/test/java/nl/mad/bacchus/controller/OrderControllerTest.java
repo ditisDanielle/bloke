@@ -35,7 +35,7 @@ public class OrderControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
-        initWebClient(new OrderController(orderService, customerService));
+        initWebClient(new OrderController(orderService /*, customerService*/));
         testOrder = new Order();
         testOrder.setId(151L);
         Customer customer = new Customer();

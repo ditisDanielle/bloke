@@ -33,16 +33,24 @@ public class ControllerExceptionAdviceTest extends AbstractControllerTest {
         new Expectations() {
             {
                 wineService.findAll();
-                result = new IllegalStateException("Some message", new IllegalStateException("Root message"));
+                result = new Exception("Some message", new Exception("Root message"));
             }
         };
         
         this.webClient.perform(MockMvcRequestBuilders.get("/wine"))
                 //.andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(500))
-                .andExpect(MockMvcResultMatchers.jsonPath("type").value(IllegalStateException.class.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("type").value(Exception.class.getName()))
                 .andExpect(MockMvcResultMatchers.jsonPath("message").value("Some message"))
                 .andExpect(MockMvcResultMatchers.jsonPath("rootCauseMessage").value("Root message"));
+    }
+
+
+
+    @Test
+    public void testIllegalStateException() throws IllegalStateException
+    {
+
     }
 
     @Test

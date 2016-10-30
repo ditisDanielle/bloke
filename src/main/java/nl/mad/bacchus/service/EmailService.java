@@ -12,6 +12,7 @@ import nl.mad.bacchus.service.dto.EmailDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ public class EmailService {
         return repo.findByCustomer(customerService.getByEmail(customerEmail));
 	}
 
+	@Async
     @Secured(Employee.ADMIN)
     public void sendEmailToAllCustomers(EmailDTO emailDTO, String fromEmail) {
         Iterable<Customer> customers = customerService.findAll();

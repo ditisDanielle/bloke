@@ -4,6 +4,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import nl.mad.bacchus.model.User;
 
 import org.hibernate.validator.constraints.Email;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public abstract class UserDTO {
 
@@ -17,7 +19,9 @@ public abstract class UserDTO {
 
     protected void processPassword(User user) {
         if (isNotBlank(password)) {
-            user.setPassword(password);
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String hashedPassword = passwordEncoder.encode(password);
+            user.setPassword(hashedPassword);
         }
     }
 

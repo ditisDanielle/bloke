@@ -20,6 +20,10 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 @Configuration
 public class TestApplicationConfig {
 
+    public TestApplicationConfig() {
+        org.hsqldb.util.DatabaseManagerSwing.main(new String[] { "--url", "jdbc:hsqldb:mem:dev", "--noexit" });
+    }
+
     @Configuration
     @Profile("hsql-mem")
     public static class InMemoryHsqlConfig {

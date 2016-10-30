@@ -3,10 +3,7 @@
  */
 package nl.mad.bacchus.model;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,31 +18,25 @@ import java.util.List;
  */
 @Entity
 @DiscriminatorValue("customer")
+@Access(AccessType.FIELD)
 public class Customer extends User {
     
     public static final String ROLE = "ROLE_customer";
     private BigDecimal balance = BigDecimal.ZERO;
 
-    private String street;
-    private String streetNumber;
-    private String city;
-    private String postalCode;
-    
-    private String invoiceStreet;
-    private String invoiceStreetNumber;
-    private String invoiceCity;
-    private String invoicePostalCode;
+    @Embedded
+    private Address address = new Address();
 
-    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
-    private List<Order> orders = new ArrayList<>();
-    
-    public void addOrder(Order order) {
-        orders.add(order);
-    }
-    
-    public List<Order> getOrders() {
-        return Collections.unmodifiableList(orders);
-    }
+
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name="street", column = @Column(name = "invoice_street")),
+        @AttributeOverride(name="streetNumber", column = @Column(name = "invoice_street_number")),
+        @AttributeOverride(name="city", column = @Column(name = "invoice_city")),
+        @AttributeOverride(name="postalCode", column = @Column(name = "invoice_postal_code")),
+    })
+    private Address invoiceAddress = new Address();
+
 
     /**
      * {@inheritDoc}
@@ -63,67 +54,20 @@ public class Customer extends User {
         this.balance = balance;
     }
 
-    public String getStreet() {
-        return street;
-    }
-    
-    public void setStreet(String street) {
-        this.street = street;
-    }
-    
-    public String getStreetNumber() {
-        return streetNumber;
-    }
-    
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
-    }
-    
-    public String getCity() {
-        return city;
-    }
-    
-    public void setCity(String city) {
-        this.city = city;
-    }
-    
-    public String getPostalCode() {
-        return postalCode;
-    }
-    
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-    
-    public String getInvoiceStreet() {
-        return invoiceStreet;
-    }
-    
-    public void setInvoiceStreet(String invoiceStreet) {
-        this.invoiceStreet = invoiceStreet;
-    }
-    
-    public String getInvoiceStreetNumber() {
-        return invoiceStreetNumber;
-    }
-    
-    public void setInvoiceStreetNumber(String invoiceStreetNumber) {
-        this.invoiceStreetNumber = invoiceStreetNumber;
-    }
-    
-    public String getInvoiceCity() {
-        return invoiceCity;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setInvoiceCity(String invoiceCity) {
-        this.invoiceCity = invoiceCity;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
-    public String getInvoicePostalCode() {
-        return invoicePostalCode;
+    public Address getInvoiceAddress() {
+        return invoiceAddress;
     }
 
-    public void setInvoicePostalCode(String invoicePostalCode) {
-        this.invoicePostalCode = invoicePostalCode;
+    public void setInvoiceAddress(Address invoiceAddress) {
+        this.invoiceAddress = invoiceAddress;
     }
 }
+

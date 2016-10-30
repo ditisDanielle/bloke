@@ -29,19 +29,8 @@ public class CustomerDTO extends UserDTO {
         dto.id = customer.getId();
         dto.email = customer.getEmail();
         dto.fullName = customer.getFullName();
-        
-        dto.address = new Address();
-        dto.address.setStreet(customer.getStreet());
-        dto.address.setStreetNumber(customer.getStreetNumber());
-        dto.address.setPostalCode(customer.getPostalCode());
-        dto.address.setCity(customer.getCity());
-        
-        dto.invoiceAddress = new Address();
-        dto.invoiceAddress.setStreet(customer.getInvoiceStreet());
-        dto.invoiceAddress.setStreetNumber(customer.getInvoiceStreetNumber());
-        dto.invoiceAddress.setPostalCode(customer.getInvoicePostalCode());
-        dto.invoiceAddress.setCity(customer.getInvoiceCity());
-
+        dto.address = customer.getAddress();
+        dto.invoiceAddress = customer.getInvoiceAddress();
         dto.balance = customer.getBalance();
         dto.active = customer.isActive();
         dto.role = customer.getRole();
@@ -59,18 +48,23 @@ public class CustomerDTO extends UserDTO {
     private Customer writeFields(Customer customer) {
         customer.setEmail(email);
         customer.setFullName(fullName);
-        
-        customer.setStreet(address.getStreet());
-        customer.setStreetNumber(address.getStreetNumber());
-        customer.setPostalCode(address.getPostalCode());
-        customer.setCity(address.getCity());
-        
-        customer.setInvoiceStreet(invoiceAddress.getStreet());
-        customer.setInvoiceStreetNumber(invoiceAddress.getStreetNumber());
-        customer.setInvoicePostalCode(invoiceAddress.getPostalCode());
-        customer.setInvoiceCity(invoiceAddress.getCity());
+
+        Address newAddress = new Address();
+        newAddress.setStreet(address.getStreet());
+        newAddress.setStreetNumber(address.getStreetNumber());
+        newAddress.setPostalCode(address.getPostalCode());
+        newAddress.setCity(address.getCity());
+        customer.setAddress(address);
+
+        Address newInvoiceAddress = new Address();
+        newInvoiceAddress.setStreet(invoiceAddress.getStreet());
+        newInvoiceAddress.setStreetNumber(invoiceAddress.getStreetNumber());
+        newInvoiceAddress.setPostalCode(invoiceAddress.getPostalCode());
+        newInvoiceAddress.setCity(invoiceAddress.getCity());
+        customer.setInvoiceAddress(invoiceAddress);
 
         processPassword(customer);
         return customer;
     }
 }
+

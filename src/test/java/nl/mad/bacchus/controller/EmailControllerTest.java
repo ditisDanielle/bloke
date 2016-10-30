@@ -28,14 +28,12 @@ public class EmailControllerTest extends AbstractControllerTest {
 
     @Injectable
     private EmailService emailService;
-    
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     private Principal principal;
 
     @Before
     public void setUp() {
-        initWebClient(new EmailController(emailService, objectMapper));
+        initWebClient(new EmailController(emailService));
         principal = new Principal() {
             @Override
             public String getName() {

@@ -13,6 +13,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class EmployeeServiceTest extends AbstractSpringTest {
@@ -66,6 +68,20 @@ public class EmployeeServiceTest extends AbstractSpringTest {
         Assert.assertNotNull(result.getId());
         Assert.assertEquals(Employee.class, result.getClass());
         Assert.assertEquals("Janne Mann", result.getFullName());
+    }
+    
+    @Test
+    public void testWithEncryptedPasswordSave() {
+        EmployeeDTO emp = new EmployeeDTO();
+        ReflectionTestUtils.setField(emp, "password", "123456789");
+        ReflectionTestUtils.setField(emp, "email", "henk@42.nl");
+        ReflectionTestUtils.setField(emp, "fullName", "Henk de Man");
+
+        User result = employeeService.create(emp);
+
+        Assert.assertNotNull(result);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        Assert.assertTrue(passwordEncoder.matches("123456789", result.getPassword()));
     }
 
 }

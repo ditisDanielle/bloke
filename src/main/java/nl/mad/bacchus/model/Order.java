@@ -3,15 +3,7 @@
  */
 package nl.mad.bacchus.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +26,7 @@ public class Order extends BaseEntity {
     }
 
     @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     private LocalDateTime date = LocalDateTime.now();
@@ -51,7 +44,6 @@ public class Order extends BaseEntity {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
-        customer.addOrder(this);
     }
 
     public LocalDateTime getDate() {

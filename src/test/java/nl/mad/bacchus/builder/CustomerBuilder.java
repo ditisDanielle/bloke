@@ -5,6 +5,7 @@ package nl.mad.bacchus.builder;
 
 import java.math.BigDecimal;
 
+import nl.mad.bacchus.model.Address;
 import nl.mad.bacchus.model.Customer;
 
 import org.springframework.stereotype.Component;
@@ -82,6 +83,27 @@ public class CustomerBuilder extends AbstractBuilder {
         }
 
         /**
+         * Set a Address.
+         * @param address the new street
+         * @return this builder, for chaining
+         */
+        public CustomerBuildCommand withAddress(Address address) {
+            customer.setAddress(address);
+            return this;
+        }
+
+        /**
+         * Set a Invoice Address.
+         * @param address the new street
+         * @return this builder, for chaining
+         */
+        public CustomerBuildCommand withInvoiceAddress(Address address) {
+            customer.setInvoiceAddress(address);
+            return this;
+        }
+
+
+        /**
          * Build the customer.
          * @return the created customer
          */
@@ -100,3 +122,4 @@ public class CustomerBuilder extends AbstractBuilder {
     }
 
 }
+
